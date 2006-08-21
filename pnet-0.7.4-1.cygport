@@ -1,0 +1,29 @@
+DESCRIPTION=
+HOMEPAGE=
+SRC_URI="http://www.southern-storm.com.au/download/${P}.tar.gz"
+
+# thanks to treecc...
+DIFF_EXCLUDES='*.c *.h doc include'
+
+WANT_AUTOMAKE=1.9
+
+src_install() {
+	cd ${B}
+	cyginstall
+
+	rm -fr ${D}/usr/share/gc
+
+	# Fix symlinks (al conflicts with mono)
+	rm -f ${D}/usr/bin/al.exe ${D}/usr/share/man/man1/al.1.gz
+	rm -f ${D}/usr/bin/cli-unknown-ar.exe ${D}/usr/share/man/man1/cli-unknown-ar.1.gz
+	echo "/usr/bin/ar $@" > ${D}/usr/bin/cli-unknown-ar
+	chmod +x ${D}/usr/bin/cli-unknown-ar
+	echo ".so ar.1" > ${D}/usr/share/man/man1/cli-unknown-ar.1
+
+	# These also conflict with mono
+	for bin in ilasm resgen
+	do
+		mv ${D}/usr/bin/${bin}.exe ${D}/usr/bin/${PN}-${bin}.exe
+		mv ${D}/usr/share/man/man1/${bin}.1 ${D}/usr/share/man/man1/${PN}-${bin}.1
+	done
+}
